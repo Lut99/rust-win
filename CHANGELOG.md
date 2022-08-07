@@ -2,6 +2,16 @@
 This file will maintain a list of changes per release of the rust-win crate.
 
 
+## [2.0.0] - 2022-08-07
+### Added
+- A new `Window::request_redraw()` shortcut for triggering new winit redraw events for the underlying Window.
+- Proper comments for `Window::new()`'s generic type.
+- Comments warning for device idleness in `Window::rebuild()`.
+
+### Changed
+- Windows now no longer create ImageViews. Instead, this is left for the parent implementation. **[breaking]**
+
+
 ## [1.0.0] - 2022-08-06
 ### Added
 - Initial set of objects, based on the `window.rs` file from the [Game-Rust](https://github.com/Lut99/Game-Rust) project.

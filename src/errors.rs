@@ -4,7 +4,7 @@
 //  Created:
 //    06 Aug 2022, 16:39:19
 //  Last edited:
-//    06 Aug 2022, 17:31:48
+//    07 Aug 2022, 13:35:32
 //  Auto updated?
 //    Yes
 // 
@@ -22,9 +22,6 @@ use rust_vk::auxillary::structs::Extent2D;
 /// Defines the toplevel errors that occur in the crate.
 #[derive(Debug)]
 pub enum WindowError {
-    /// Failed to create new vies.
-    ViewsCreateError{ title: String, err: rust_vk::image::view::Error },
-
     /// Unknown monitor index given.
     UnknownMonitor{ got: usize, expected: usize },
     /// No monitors found
@@ -40,8 +37,6 @@ pub enum WindowError {
 
     /// Failed to rebuild the swapchain.
     SwapchainRecreateError{ title: String, old_size: Extent2D<u32>, new_size: Extent2D<u32>, err: rust_vk::swapchain::Error },
-    /// Failed to rebuild the vies.
-    ViewsRecreateError{ title: String, old_size: Extent2D<u32>, new_size: Extent2D<u32>, err: rust_vk::image::view::Error },
 }
 
 impl Display for WindowError {
@@ -49,8 +44,6 @@ impl Display for WindowError {
     fn fmt(&self, f: &mut Formatter<'_>) -> FResult {
         use WindowError::*;
         match self {
-            ViewsCreateError{ title, err } => write!(f, "Failed to create new image views for swapchain images of window with title '{}': {}", title, err),
-
             UnknownMonitor{ got, expected }                                  => write!(f, "Unknown monitor index '{}' (only {} monitors known)", got, expected),
             NoMonitors                                                       => write!(f, "No monitors found to create a Window on"),
             UnknownVideoMode{ monitor, resolution, refresh_rate, bit_depth } => write!(f, "Monitor {} does not support {}x{}@{} ({} bpp)", monitor, resolution.0, resolution.1, refresh_rate, bit_depth),
@@ -58,8 +51,7 @@ impl Display for WindowError {
             SurfaceCreateError{ title, err }                                 => write!(f, "Could not create new Surface for window with title '{}': {}", title, err),
             SwapchainCreateError{ title, err }                               => write!(f, "Could not create new Swapchain for window with title '{}': {}", title, err),
 
-            SwapchainRecreateError{ title, old_size, new_size, err }         => write!(f, "Could not re-create Swapchain from {} to {} for window with title '{}': {}", old_size, new_size, title, err),
-            ViewsRecreateError{ title, old_size, new_size, err }             => write!(f, "Could not re-create Swapchain image views from {} to {} for window with title '{}': {}", old_size, new_size, title, err),
+            SwapchainRecreateError{ title, old_size, new_size, err } => write!(f, "Could not re-create Swapchain from {} to {} for window with title '{}': {}", old_size, new_size, title, err),
         }
     }
 }

@@ -4,7 +4,7 @@
 //  Created:
 //    06 Aug 2022, 16:40:41
 //  Last edited:
-//    06 Aug 2022, 17:38:21
+//    07 Aug 2022, 13:44:56
 //  Auto updated?
 //    Yes
 // 
@@ -12,7 +12,7 @@
 //!   Implements the main Window object.
 // 
 
-use std::cell::{Ref, RefCell, RefMut};
+use std::cell::{RefCell, RefMut};
 use std::rc::Rc;
 
 use winit::dpi::{Size, PhysicalSize};
@@ -20,60 +20,15 @@ use winit::event_loop::EventLoop;
 use winit::monitor::{MonitorHandle, VideoMode};
 use winit::window::{Fullscreen, Window as WinitWindow, WindowBuilder, WindowId};
 
-use rust_vk::auxillary::enums::{ImageAspect, ImageFormat, ImageViewKind};
+use rust_vk::auxillary::enums::ImageFormat;
 use rust_vk::auxillary::structs::Extent2D;
 use rust_vk::device::Device;
 use rust_vk::surface::Surface;
 use rust_vk::swapchain::Swapchain;
-use rust_vk::image;
 
 use crate::{debug, info};
 pub use crate::errors::WindowError as Error;
 use crate::spec::{WindowInfo, WindowMode};
-
-
-/***** HELPER FUNCTIONS *****/
-/// Given a Swapchain, generates new ImageViews around its images.
-/// 
-/// # Arguments
-/// - `title`: The title of the Window for which we create images (only used for debugging).
-/// - `device`: The Device where the Swapchain lives.
-/// - `swapchain`: The Swapchain to create ImageViews for.
-/// 
-/// # Errors
-/// This function errors if we could not create the new views.
-fn create_views(title: &str, device: &Rc<Device>, swapchain: &Rc<RefCell<Swapchain>>) -> Result<Vec<Rc<image::View>>, Error> {
-    // Borrow the swapchain
-    let swapchain: Ref<Swapchain> = swapchain.borrow();
-
-    // Rebuild all of the image views
-    debug!("Generating image views...");
-    let mut views: Vec<Rc<image::View>> = Vec::with_capacity(swapchain.images().len());
-    for swapchain_image in swapchain.images() {
-        // Create the view around it
-        let view = match image::View::new(device.clone(), swapchain_image.clone(), image::ViewInfo {
-            kind    : ImageViewKind::TwoD,
-            format  : swapchain.format().into(),
-            swizzle : Default::default(),
-
-            aspect     : ImageAspect::Colour,
-            base_level : 0,
-            mip_levels : 1,
-        }) {
-            Ok(view) => view,
-            Err(err) => { return Err(Error::ViewsCreateError{ title: title.into(), err }); }
-        };
-
-        // Store it in the list
-        views.push(view);
-    }
-
-    // Done, return
-    Ok(views)
-}
-
-
-
 
 
 /***** LIBRARY *****/
@@ -88,8 +43,6 @@ pub struct Window {
     surface   : Rc<Surface>,
     /// The Vulkan swapchain that we create from this Window.
     swapchain : Rc<RefCell<Swapchain>>,
-    /// Finally, a list of views that we create from this Window.
-    views     : Vec<Rc<image::View>>,
 
     /// The title of this window.
     title : String,
@@ -97,6 +50,9 @@ pub struct Window {
 
 impl Window {
     /// Constructor for the Window.
+    /// 
+    /// # Generic types:
+    /// - `T`: The custom Event type for the EventLoop. If the EventLoop has no custom events, use `()`.
     /// 
     /// # Arguments
     /// - `event_loop`: The winit EventLoop where the new Window will be attached to.
@@ -183,9 +139,6 @@ impl Window {
             Err(err)      => { return Err(Error::SwapchainCreateError{ title: info.title, err }); }
         };
 
-        // Generate the views
-        let views: Vec<Rc<image::View>> = create_views(&info.title, &device, &swapchain)?;
-
         // Done, return a new instance
         Ok(Self {
             device,
@@ -193,7 +146,6 @@ impl Window {
             window : wwindow,
             surface,
             swapchain,
-            views,
 
             title : info.title,
         })
@@ -212,9 +164,15 @@ impl Window {
         self.title = new_title.to_string();
     }
 
+    /// Triggers the RedrawEvent in the winit EventLoop to which the wrapped Window is bound.
+    #[inline]
+    pub fn request_redraw(&self) { self.window.request_redraw() }
+
 
 
     /// Rebuilds the Window, resizing its internal structs to the Window's current size.
+    /// 
+    /// Note that this function does _not_ wait for the device to become idle. Make sure you do this beforehand.
     /// 
     /// # Returns
     /// Nothing, but does rebuild internal structs.
@@ -238,13 +196,6 @@ impl Window {
             }
         }
 
-        // Rebuild the images
-        self.views = match create_views(&self.title, &self.device, &self.swapchain) {
-            Ok(views)                                  => views,
-            Err(Error::ViewsCreateError{ title, err }) => { return Err(Error::ViewsRecreateError{ title, old_size: old_size.clone(), new_size, err }); }
-            Err(err)                                   => { return Err(err); }
-        };
-
         // Done
         Ok(())
     }
@@ -264,12 +215,10 @@ impl Window {
     pub fn surface(&self) -> &Surface { &self.surface }
 
     /// Provides access to the internal Swapchain for this Window.
+    /// 
+    /// This function should be used to get the Swapchain images.
     #[inline]
     pub fn swapchain(&self) -> &RefCell<Swapchain> { &self.swapchain }
-
-    /// Provides access to the internal Swapchain images (as views) for this Window.
-    #[inline]
-    pub fn views(&self) -> &[Rc<image::View>] { &self.views }
 
 
 
