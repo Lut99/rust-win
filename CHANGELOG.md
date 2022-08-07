@@ -2,6 +2,11 @@
 This file will maintain a list of changes per release of the rust-win crate.
 
 
+## [2.1.0] - 2022-08-07
+### Added
+- A convenience constructor for the `WindowInfo` struct that does some implicit conversion.
+
+
 ## [2.0.0] - 2022-08-07
 ### Added
 - A new `Window::request_redraw()` shortcut for triggering new winit redraw events for the underlying Window.

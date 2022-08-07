@@ -1,6 +1,6 @@
 [package]
 name = "rust-win"
-version = "2.0.0"
+version = "2.1.0"
 edition = "2021"
 authors = [ "Lut99" ]
 description = "A winit-based, ash-compatible Window implementation in Rust. Builds on the `rust-vk` crate as a more convenient wrapper for ash."

@@ -4,7 +4,7 @@
 //  Created:
 //    06 Aug 2022, 16:54:12
 //  Last edited:
-//    06 Aug 2022, 17:08:29
+//    07 Aug 2022, 18:25:16
 //  Auto updated?
 //    Yes
 // 
@@ -57,4 +57,25 @@ pub struct WindowInfo {
     pub title       : String,
     /// The WindowMode of the new Window, which decides the size and location of it.
     pub window_mode : WindowMode,
+}
+
+impl WindowInfo {
+    /// Convencience constructor that does some implicit type convertion.
+    /// 
+    /// # Generic arguments
+    /// - `S`: The String-like type of the `title`.
+    /// 
+    /// # Arguments
+    /// - `title`: The title of the new Window.
+    /// - `window_mode`: The WindowMode of the new Window, which determines its initial size and location.
+    /// 
+    /// # Returns
+    /// A new instance of the WindowInfo struct, populated with the given values.
+    #[inline]
+    pub fn new<S: Into<String>>(title: S, window_mode: WindowMode) -> Self {
+        Self {
+            title : title.into(),
+            window_mode,
+        }
+    }
 }
