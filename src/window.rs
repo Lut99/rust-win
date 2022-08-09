@@ -4,7 +4,7 @@
 //  Created:
 //    06 Aug 2022, 16:40:41
 //  Last edited:
-//    07 Aug 2022, 13:44:56
+//    09 Aug 2022, 20:20:24
 //  Auto updated?
 //    Yes
 // 
@@ -230,9 +230,9 @@ impl Window {
     #[inline]
     pub fn title(&self) -> &str { &self.title }
 
-    /// Returns the current extent of the Window's images.
+    /// Returns the current extent of the Window itself. If this is not compatible with the current swapchain extent, then the window has been resized (and the swapchain will report that it is outdated).
     #[inline]
-    pub fn extent(&self) -> Extent2D<u32> { self.swapchain.borrow().extent().clone() }
+    pub fn extent(&self) -> Extent2D<u32> { Extent2D::from(self.window.inner_size()) }
 
     /// Returns the current format of the Window's images.
     #[inline]
