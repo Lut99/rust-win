@@ -2,6 +2,11 @@
 This file will maintain a list of changes per release of the rust-win crate.
 
 
+## [2.1.2] - 2022-08-09
+### Changed
+- Bumped `rust-vk` to 2.0.2.
+
+
 ## [2.1.1] - 2022-08-09
 ### Changed
 - `Window::extent()` now returns the accurate Window size instead of the (possibly) outdated Swapchain extent. To get the old size, use `Window::swapchain()` and then the Swapchain's function.
