@@ -2,12 +2,17 @@
 This file will maintain a list of changes per release of the rust-win crate.
 
 
-## [2.1.4] - 2022-08-09
+## [2.1.5] - 2022-08-13
+### Changed
+- Bumped `rust-vk` to 4.0.0.
+
+
+## [2.1.4] - 2022-08-13
 ### Changed
 - Bumped `rust-vk` to 3.0.1.
 
 
-## [2.1.3] - 2022-08-09
+## [2.1.3] - 2022-08-13
 ### Changed
 - Bumped `rust-vk` to 3.0.0.
 
